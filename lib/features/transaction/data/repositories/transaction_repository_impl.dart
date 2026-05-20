@@ -1,0 +1,134 @@
+import 'package:sqflite/sqflite.dart';
+import '../../../../core/database/app_database.dart';
+import '../../../../core/database/tables.dart';
+import '../../domain/entities/transaction_entity.dart';
+import '../../domain/repositories/transaction_repository.dart';
+import '../model/transaction_model.dart';
+
+class TransactionRepositoryImpl implements TransactionRepository {
+  Future<Database> get _db => AppDatabase.database;
+
+  // SQL JOIN to fetch category name alongside each transaction
+  static const String _joinQuery = '''
+    SELECT 
+      t.id, t.amount, t.note, t.type, 
+      t.category_id, t.timestamp, t.is_synced, t.is_deleted,
+      c.name AS category_name
+    FROM ${DbTables.transactions} t
+    LEFT JOIN ${DbTables.categories} c ON t.category_id = c.id
+    WHERE t.is_deleted = 0
+  ''';
+
+  @override
+  Future<List<TransactionEntity>> getTransactions() async {
+    final db = await _db;
+    final rows = await db.rawQuery('$_joinQuery ORDER BY t.timestamp DESC');
+    return rows.map(TransactionModel.fromJoinMap).toList();
+  }
+
+  @override
+  Future<List<TransactionEntity>> getRecentTransactions({int limit = 10}) async {
+    final db = await _db;
+    final rows = await db.rawQuery(
+      '$_joinQuery ORDER BY t.timestamp DESC LIMIT ?',
+      [limit],
+    );
+    return rows.map(TransactionModel.fromJoinMap).toList();
+  }
+
+  @override
+  Future<void> addTransaction(TransactionEntity txn) async {
+    final db = await _db;
+    await db.insert(
+      DbTables.transactions,
+      TransactionModel.fromEntity(txn).toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  @override
+  Future<void> softDelete(String id) async {
+    final db = await _db;
+    await db.update(
+      DbTables.transactions,
+      {'is_deleted': 1, 'is_synced': 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<List<TransactionEntity>> getUnsynced() async {
+    final db = await _db;
+    final rows = await db.rawQuery('''
+      SELECT 
+        t.id, t.amount, t.note, t.type, 
+        t.category_id, t.timestamp, t.is_synced, t.is_deleted,
+        c.name AS category_name
+      FROM ${DbTables.transactions} t
+      LEFT JOIN ${DbTables.categories} c ON t.category_id = c.id
+      WHERE t.is_synced = 0 AND t.is_deleted = 0
+    ''');
+    return rows.map(TransactionModel.fromJoinMap).toList();
+  }
+
+  // @override
+  // Future<List<TransactionEntity>> getDeletedTransactions() async {
+  //   final db = await _db;
+  //   final rows = await db.query(
+  //     DbTables.transactions,
+  //     where: 'is_deleted = ?',
+  //     whereArgs: [1],
+  //   );
+  //   return rows
+  //       .map((m) => TransactionModel.fromJoinMap({...m, 'category_name': ''}))
+  //       .toList();
+  // }
+
+  @override
+  Future<void> markSynced(List<String> ids) async {
+    if (ids.isEmpty) return;
+    final db = await _db;
+    final batch = db.batch();
+    for (final id in ids) {
+      batch.update(
+        DbTables.transactions,
+        {'is_synced': 1},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
+  @override
+  Future<void> hardDelete(List<String> ids) async {
+    if (ids.isEmpty) return;
+    final db = await _db;
+    final placeholders = ids.map((_) => '?').join(', ');
+    await db.delete(
+      DbTables.transactions,
+      where: 'id IN ($placeholders)',
+      whereArgs: ids,
+    );
+  }
+
+  @override
+  Future<double> getCurrentMonthDebitTotal() async {
+    final db = await _db;
+    final now = DateTime.now();
+    final startOfMonth =
+    DateTime(now.year, now.month, 1).toIso8601String();
+    final endOfMonth =
+    DateTime(now.year, now.month + 1, 0, 23, 59, 59).toIso8601String();
+    final result = await db.rawQuery('''
+      SELECT COALESCE(SUM(amount), 0) AS total
+      FROM ${DbTables.transactions}
+      WHERE type = 'debit'
+        AND is_deleted = 0
+        AND timestamp >= ?
+        AND timestamp <= ?
+    ''', [startOfMonth, endOfMonth]);
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
+  }
+}
