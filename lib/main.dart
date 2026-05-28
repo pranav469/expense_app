@@ -1,3 +1,4 @@
+import 'package:expense_manager/core/network/dio_client.dart';
 import 'package:expense_manager/features/category/data/datasource/category_local_datasource.dart';
 import 'package:expense_manager/features/transaction/data/repositories/transaction_repository_impl.dart';
 import 'package:expense_manager/features/transaction/domain/repositories/dashboard_repository.dart';
@@ -53,7 +54,7 @@ class MyApp extends StatelessWidget {
           create: (_) => DashboardBloc(
             GetDashboardStats(
               DashboardRepositoryImpl(
-                TransactionRepositoryImpl(),
+                TransactionRepositoryImpl(DioClient.dio),
               ),
             ),
           )..add(const LoadDashboard()),
@@ -62,16 +63,16 @@ class MyApp extends StatelessWidget {
         BlocProvider<TransactionBloc>(
           create: (_) => TransactionBloc(
             addTransaction: AddTransaction(
-              TransactionRepositoryImpl(),
+              TransactionRepositoryImpl(DioClient.dio),
             ),
             getTransactions: GetTransactions(
-              TransactionRepositoryImpl(),
+              TransactionRepositoryImpl(DioClient.dio),
             ),
             softDelete: SoftDeleteTransaction(
-              TransactionRepositoryImpl(),
+              TransactionRepositoryImpl(DioClient.dio),
             ),
             checkBudgetLimit: CheckBudgetLimit(
-              TransactionRepositoryImpl(),
+              TransactionRepositoryImpl(DioClient.dio),
             ),
             notificationService: NotificationService(),
           )..add(LoadTransactions()),
@@ -79,8 +80,8 @@ class MyApp extends StatelessWidget {
         BlocProvider<SyncBloc>(
           create: (_) => SyncBloc(
             SyncUsecase(
-              TransactionRepositoryImpl(),
-              CategoryRepositoryImpl(
+              TransactionRepositoryImpl(DioClient.dio),
+              CategoryRepositoryImpl(DioClient.dio
               ),
             ),
           ),
@@ -88,9 +89,9 @@ class MyApp extends StatelessWidget {
 
         BlocProvider<CategoryBloc>(
           create: (_) => CategoryBloc(
-            GetCategories(CategoryRepositoryImpl()),
-            AddCategory(CategoryRepositoryImpl()),
-            SoftDeleteCategory(CategoryRepositoryImpl()),
+            GetCategories(CategoryRepositoryImpl(DioClient.dio)),
+            AddCategory(CategoryRepositoryImpl(DioClient.dio)),
+            SoftDeleteCategory(CategoryRepositoryImpl(DioClient.dio)),
           ),
         ),
       ],

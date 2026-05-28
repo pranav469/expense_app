@@ -4,8 +4,13 @@ import '../../../../core/database/tables.dart';
 import '../../../category/data/models/category_model.dart';
 import '../../domain/entities/category_entity.dart';
 import '../../domain/repositories/category_repository.dart';
+import 'package:dio/dio.dart';
 
 class CategoryRepositoryImpl implements CategoryRepository {
+  final Dio _dio; // inject this
+
+  CategoryRepositoryImpl(this._dio);
+
   Future<Database> get _db => AppDatabase.database;
 
   @override
@@ -103,5 +108,40 @@ class CategoryRepositoryImpl implements CategoryRepository {
       );
     }
     await batch.commit(noResult: true);
+  }
+
+  @override
+  Future<void> remoteDelete(List<String> ids) async {
+    await _dio.delete(
+      '/categories/delete/',
+      data: {'ids': ids},
+    );
+  }
+
+  @override
+  Future<List<String>> remoteAdd(List<CategoryEntity> categories) async {
+    final List<String> syncedIds = [];
+    for (final cat in categories) {
+      try {
+        final response = await _dio.post(
+          '/categories/add/',
+          data: {
+            'category_id': cat.id,
+            'name': cat.name,
+          },
+        );
+        final ids = List<String>.from(response.data['synced_ids']);
+        syncedIds.addAll(ids);
+      } on DioException catch (e) {
+        final message = e.response?.data['message'] ?? '';
+        if (message == 'Category already exists') {
+          // Already on the cloud — just mark it as synced locally
+          syncedIds.add(cat.id);
+        } else {
+          rethrow; // real errors should still bubble up
+        }
+      }
+    }
+    return syncedIds;
   }
 }

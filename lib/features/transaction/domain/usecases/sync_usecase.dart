@@ -1,6 +1,5 @@
-import '../repositories/category_repository.dart';
 import '../repositories/transaction_repository.dart';
-
+import '../repositories/category_repository.dart';
 
 class SyncUsecase {
   final TransactionRepository _txnRepo;
@@ -8,85 +7,59 @@ class SyncUsecase {
 
   SyncUsecase(this._txnRepo, this._catRepo);
 
-  /// Step A: Cloud purge → local hard delete (transactions before categories)
   Future<void> purgeDeleted() async {
-    // Transactions first to avoid FK constraint issues
-    // final deletedTxns = await _txnRepo.getPendingDeletion();
-    // if (deletedTxns.isNotEmpty) {
-    //   final ids = deletedTxns.map((t) => t.id).toList();
-    //   await _txnRepo.remoteDelete(ids);
-    //   await _txnRepo.hardDelete(ids);
-    // }
-    //
-    // // Categories after transactions
-    // final deletedCats = await _catRepo.getPendingDeletion();
-    // if (deletedCats.isNotEmpty) {
-    //   final ids = deletedCats.map((c) => c.id).toList();
-    //   await _catRepo.remoteDelete(ids);
-    //   await _catRepo.hardDelete(ids);
-    // }
+    print('START');
+    final deletedTxns = await _txnRepo.getPendingDeletion();
+
+    // Only send to API if they were previously synced to cloud
+    final syncedDeletedTxns = deletedTxns.where((t) => t.isSynced == 1).toList();
+    print('${deletedTxns.length} || ${syncedDeletedTxns.length}');
+    if (syncedDeletedTxns.isNotEmpty) {
+      print('1');
+      final ids = syncedDeletedTxns.map((t) => t.id).toList();
+      await _txnRepo.remoteDelete(ids);
+    }
+
+    // Hard delete ALL locally (synced or not — they're deleted either way)
+    if (deletedTxns.isNotEmpty) {
+      print('2');
+      await _txnRepo.hardDelete(deletedTxns.map((t) => t.id).toList());
+    }
+
+    final deletedCats = await _catRepo.getDeletedCategories();
+
+    final syncedDeletedCats = deletedCats.where((c) => c.isSynced == 1).toList();
+    if (syncedDeletedCats.isNotEmpty) {
+      print('3');
+      final ids = syncedDeletedCats.map((c) => c.id).toList();
+      await _catRepo.remoteDelete(ids);
+    }
+
+    if (deletedCats.isNotEmpty) {
+      print('4');
+      await _catRepo.hardDeleteCategories(deletedCats.map((c) => c.id).toList());
+    }
   }
 
-  /// Step B1: Upload unsynced categories
   Future<void> syncCategories() async {
-    // final unsynced = await _catRepo.getUnsynced();
-    // if (unsynced.isEmpty) return;
-    // final syncedIds = await _catRepo.remoteAdd(unsynced);
-    // if (syncedIds.isNotEmpty) {
-    //   await _catRepo.markSynced(syncedIds);
-    // }
+    final unsynced = await _catRepo.getUnsyncedCategories();
+    if (unsynced.isEmpty) return;
+    final syncedIds = await _catRepo.remoteAdd(unsynced);
+    if (syncedIds.isNotEmpty) {
+      await _catRepo.markSynced(syncedIds);
+    }
   }
 
-  /// Step B2: Upload unsynced transactions (run after syncCategories)
   Future<void> syncTransactions() async {
-  //   final unsynced = await _txnRepo.getUnsynced();
-  //   if (unsynced.isEmpty) return;
-  //   final syncedIds = await _txnRepo.remoteAdd(unsynced);
-  //   if (syncedIds.isNotEmpty) {
-  //     await _txnRepo.markSynced(syncedIds);
-  //   }
-   }
+    print('ENTERED');
+    final unsynced = await _txnRepo.getUnsynced();
+    print('UNSYNCED?? $unsynced');
+    if (unsynced.isEmpty) return;
+    final syncedIds = await _txnRepo.remoteAdd(unsynced);
+
+    print('SYNCED ID $syncedIds');
+    if (syncedIds.isNotEmpty) {
+      await _txnRepo.markSynced(syncedIds);
+    }
+  }
 }
-
-
-// // domain/usecases/sync_usecase.dart
-// import '../../../category/domain/repository/category_repository.dart';
-// import '../repositories/transaction_repository.dart';
-//
-// class SyncUsecase {
-//   final TransactionRepository _txnRepo;
-//   final CategoryRepository _catRepo;
-//
-//   SyncUsecase(this._txnRepo, this._catRepo);
-//
-//   Future<void> purgeDeleted() async {
-//     // Transactions first (FK constraint), then categories
-//     final deletedTxns = await _txnRepo.getPendingDeletion();
-//     if (deletedTxns.isNotEmpty) {
-//       final ids = deletedTxns.map((t) => t.id).toList();
-//       await _txnRepo.remoteDelete(ids);   // DELETE /transactions/delete/
-//       await _txnRepo.hardDelete(ids);     // DELETE FROM transactions
-//     }
-//
-//     final deletedCats = await _catRepo.getPendingDeletion();
-//     if (deletedCats.isNotEmpty) {
-//       final ids = deletedCats.map((c) => c.id).toList();
-//       await _catRepo.remoteDelete(ids);   // DELETE /categories/delete/
-//       await _catRepo.hardDelete(ids);
-//     }
-//   }
-//
-//   Future<void> syncCategories() async {
-//     final unsynced = await _catRepo.getUnsynced();
-//     if (unsynced.isEmpty) return;
-//     final syncedIds = await _catRepo.remoteAdd(unsynced);   // POST /categories/add/
-//     await _catRepo.markSynced(syncedIds);
-//   }
-//
-//   Future<void> syncTransactions() async {
-//     final unsynced = await _txnRepo.getUnsynced();
-//     if (unsynced.isEmpty) return;
-//     final syncedIds = await _txnRepo.remoteAdd(unsynced);   // POST /transactions/add/
-//     await _txnRepo.markSynced(syncedIds);
-//   }
-// }

@@ -4,8 +4,13 @@ import '../../../../core/database/tables.dart';
 import '../../domain/entities/transaction_entity.dart';
 import '../../domain/repositories/transaction_repository.dart';
 import '../model/transaction_model.dart';
+import 'package:dio/dio.dart';
 
 class TransactionRepositoryImpl implements TransactionRepository {
+  final Dio _dio; // inject this
+
+  TransactionRepositoryImpl(this._dio);
+
   Future<Database> get _db => AppDatabase.database;
 
   // SQL JOIN to fetch category name alongside each transaction
@@ -87,10 +92,12 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Future<void> markSynced(List<String> ids) async {
+    print('REACHED DB');
     if (ids.isEmpty) return;
     final db = await _db;
     final batch = db.batch();
     for (final id in ids) {
+      print('INSIDE LOOP');
       batch.update(
         DbTables.transactions,
         {'is_synced': 1},
@@ -130,5 +137,54 @@ class TransactionRepositoryImpl implements TransactionRepository {
         AND timestamp <= ?
     ''', [startOfMonth, endOfMonth]);
     return (result.first['total'] as num?)?.toDouble() ?? 0.0;
+  }
+
+  @override
+  Future<List<TransactionEntity>> getPendingDeletion() async {
+    final db = await _db;
+    final rows = await db.query(
+      DbTables.transactions,
+      where: 'is_deleted = ?',
+      whereArgs: [1],
+    );
+    return rows
+        .map((m) => TransactionModel.fromJoinMap({...m, 'category_name': ''}))
+        .toList();
+  }
+
+  @override
+  Future<void> remoteDelete(List<String> ids) async {
+    await _dio.delete(
+      '/transactions/delete/',
+      data: {'ids': ids},
+    );
+    // throws on non-2xx, so no need to check manually
+  }
+
+  @override
+  Future<List<String>> remoteAdd(List<TransactionEntity> transactions) async {
+    final payload = transactions.map((t) => {
+      'id': t.id,
+      'amount': t.amount,
+      'note': t.note,
+      'type': t.type,
+      'category_id': t.categoryId,
+      'timestamp': t.timestamp.toIso8601String()
+          .replaceFirst('T', ' ')
+          .split('.')[0], // "2023-10-27 10:00:00" format the API expects
+    }).toList();
+
+    final response = await _dio.post(
+      '/transactions/add/',
+      data: {'transactions': payload},
+    );
+
+    print('RES ${response.data['transactions']}');
+    final ids = transactions.map((t) => t.id).toList();
+    return ids;
+
+
+    // final transactionsList = response.data['transactions'] as List;
+    // return transactionsList.map((t) => t['id'] as String).toList();
   }
 }

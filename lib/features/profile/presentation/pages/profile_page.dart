@@ -5,6 +5,8 @@ import '../../../../core/utils/session_service.dart';
 import '../../../transaction/presentation/bloc/category_bloc.dart';
 import '../../../transaction/presentation/bloc/category_event.dart';
 import '../../../transaction/presentation/bloc/category_state.dart';
+import '../../../transaction/presentation/bloc/sync_bloc.dart';
+import '../../../transaction/presentation/bloc/sync_event.dart';
 import '../widgets/editable_namefield.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -33,6 +35,10 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       nickname = name;
     });
+  }
+
+  void _startSync() {
+    context.read<SyncBloc>().add(const TriggerSync());
   }
 
   @override
@@ -67,6 +73,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     _setLimit(),
                     SizedBox(height: 15),
                     categoryList(context),
+                    SizedBox(height: 15),
+                    cloudSyncSection(),
+                    SizedBox(height: 15),
+                    logout(),
                   ],
                 ),
               ),
@@ -343,6 +353,85 @@ class _ProfilePageState extends State<ProfilePage> {
 
         return const SizedBox();
       },
+    );
+  }
+
+  Widget cloudSyncSection() {
+    return GestureDetector(
+      onTap: () {
+        _startSync();
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('CLOUD SYNC', style: AppTextStyles.profileText),
+          SizedBox(height: 15),
+          Container(
+            padding: const EdgeInsets.all(18),
+
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: Colors.white10),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.blueAccent,
+                borderRadius: BorderRadius.circular(22),
+              ),
+              padding: EdgeInsets.only(
+                top: 10,
+                bottom: 10,
+                left: 20,
+                right: 20,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('SYNC TO CLOUD', style: AppTextStyles.profileText),
+                      SizedBox(height: 5),
+                      Text(
+                        'Sync and update to backend',
+                        style: AppTextStyles.profileSubText,
+                      ),
+                    ],
+                  ),
+                  Image.asset('assets/images/profile/cloud.png'),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget logout() {
+    return GestureDetector(
+      onTap: (){},
+      child: Container(
+        padding: const EdgeInsets.all(18),
+
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Log Out',
+              style: AppTextStyles.onboardingDescription.copyWith(color: Colors.red),
+            ),
+            SizedBox(width: 10,),
+            Icon(Icons.logout,color: Colors.red,size: 18,),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -9,4 +9,7 @@ abstract class CategoryRepository {
   Future<List<CategoryEntity>> getDeletedCategories();
   Future<void> markSynced(List<String> ids);
   Future<void> hardDeleteCategories(List<String> ids);
+
+  Future<void> remoteDelete(List<String> ids);
+  Future<List<String>> remoteAdd(List<CategoryEntity> categories);
 }
