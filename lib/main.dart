@@ -26,6 +26,8 @@ import 'features/transaction/presentation/bloc/sync_bloc.dart';
 import 'features/transaction/presentation/bloc/transaction_bloc.dart';
 import 'features/transaction/presentation/bloc/transaction_event.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() {
   runApp(const MyApp());
 }
@@ -93,6 +95,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         routes: {
           '/': (context) => const OnboardingPage(),

@@ -2,6 +2,7 @@ import 'package:expense_manager/features/transaction/presentation/pages/home_pag
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../main.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -55,17 +56,10 @@ class _NicknamePageState extends State<NicknamePage> {
         child: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state.isAuthenticated) {
-              // Navigator.pushNamedAndRemoveUntil(
-              //   context,
-              //   '/home',
-              //       (route) => false,
-              // );
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const HomePage(),
-                ),
-              );            }
+              navigatorKey.currentState?.push(
+                MaterialPageRoute(builder: (_) => HomePage()),
+              );
+            }
 
             if (state.error != null) {
               ScaffoldMessenger.of(context).showSnackBar(

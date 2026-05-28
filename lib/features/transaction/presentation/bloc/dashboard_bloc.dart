@@ -1,6 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
-
 import '../../domain/usecases/get_dashboard_stats.dart';
 import 'dashboard_event.dart';
 import 'dashboard_state.dart';
@@ -15,9 +13,10 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
   Future<void> _onLoad(
       LoadDashboard event, Emitter<DashboardState> emit) async {
-    print('REACHED BLOC');
     emit(DashboardLoading());
     try {
+
+      // Here _getDashboardStats is a callable class , can revoke the function with just its object, no need to call function name
       final stats = await _getDashboardStats();
       emit(DashboardLoaded(stats));
     } catch (e) {

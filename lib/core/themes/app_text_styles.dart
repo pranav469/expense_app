@@ -8,6 +8,13 @@ class AppTextStyles {
     height: 1.2,
   );
 
+  static const TextStyle profileText = TextStyle(
+    fontSize: 17,
+    fontWeight: FontWeight.w600,
+    color: Colors.white,
+    height: 1.2,
+  );
+
   static const TextStyle onboardingDescription = TextStyle(
     fontSize: 15,
     fontWeight: FontWeight.w400,

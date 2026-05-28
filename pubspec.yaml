@@ -50,6 +50,7 @@ dependencies:
   google_fonts: ^8.1.0
   uuid: ^4.5.3
   flutter_launcher_icons: ^0.14.4
+  salomon_bottom_bar: ^3.3.2
 
 
 dev_dependencies:

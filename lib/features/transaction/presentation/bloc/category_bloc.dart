@@ -23,6 +23,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       LoadCategories event, Emitter<CategoryState> emit) async {
     emit(CategoryLoading());
     try {
+      print('REACHED??');
       final cats = await _getCategories();
       emit(CategoryLoaded(cats!));
     } catch (e) {

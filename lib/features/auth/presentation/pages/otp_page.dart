@@ -4,6 +4,7 @@ import 'package:expense_manager/features/auth/presentation/pages/login_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../main.dart';
 import '../../../transaction/presentation/pages/home_page.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -80,25 +81,14 @@ class _OtpPageState extends State<OtpPage> {
         child: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state.isAuthenticated) {
-              // Navigator.pushNamedAndRemoveUntil(
-              //   context,
-              //   '/home',
-              //       (route) => false,
-              // );
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const HomePage(),
-                ),
+              navigatorKey.currentState?.push(
+                MaterialPageRoute(builder: (_) => HomePage()),
               );
             }
 
             if (state.needsNickname) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const NicknamePage(),
-                ),
+              navigatorKey.currentState?.push(
+                MaterialPageRoute(builder: (_) => NicknamePage()),
               );
             }
 
@@ -136,11 +126,8 @@ class _OtpPageState extends State<OtpPage> {
 
               GestureDetector(
                 onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const LoginPage(),
-                    ),
+                  navigatorKey.currentState?.push(
+                    MaterialPageRoute(builder: (_) => LoginPage()),
                   );
                 },
                 child: const Text(

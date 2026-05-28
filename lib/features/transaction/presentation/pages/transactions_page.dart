@@ -27,16 +27,16 @@ class TransactionsPage extends StatelessWidget {
                 const Text(
                   'Transactions',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 25,
                     fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
+                    color: AppTheme.surface,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'All your transactions',
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: AppTheme.shimmerBase,
                     fontSize: 13,
                   ),
                 ),

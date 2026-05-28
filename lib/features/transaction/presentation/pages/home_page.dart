@@ -1,5 +1,7 @@
+import 'package:expense_manager/features/profile/presentation/pages/profile_page.dart';
 import 'package:expense_manager/features/transaction/presentation/pages/add_category_page.dart';
 import 'package:expense_manager/features/transaction/presentation/pages/transactions_page.dart';
+import 'package:expense_manager/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +16,7 @@ import '../widgets/sync_fab.dart';
 import '../widgets/transaction_card.dart';
 import 'add_transaction_page.dart';
 import 'category.dart';
+import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,65 +28,112 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
-  final _pages = const [_DashboardTab(), TransactionsPage(), CategoryPage()];
+  final _pages = const [
+    _DashboardTab(),
+    TransactionsPage(),
+    ProfilePage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: _pages[_currentIndex],
-      floatingActionButton: _currentIndex == 0 || _currentIndex == 1
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FloatingActionButton(
-                  heroTag: 'add',
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AddTransactionPage(),
-                    ),
-                  ),
-                  backgroundColor: AppTheme.primary,
-                  child: const Icon(Icons.add, color: Colors.white),
-                ),
 
-                FloatingActionButton(
-                  heroTag: 'Cat',
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const AddCategoryPage()),
-                  ),
-                  backgroundColor: AppTheme.primary,
-                  child: const Icon(Icons.add, color: Colors.white),
+      body: _pages[_currentIndex],
+
+      floatingActionButton:
+      _currentIndex == 0 || _currentIndex == 1
+          ? Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: 'add',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                  const AddTransactionPage(),
                 ),
-                const SizedBox(height: 12),
-                const SyncFab(),
-              ],
-            )
-          : null,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (i) => setState(() => _currentIndex = i),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
+              );
+            },
+            backgroundColor: AppTheme.primary,
+            child: const Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
-            label: 'Transactions',
+
+          const SizedBox(height: 10),
+
+          FloatingActionButton(
+            heroTag: 'cat',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                  const AddCategoryPage(),
+                ),
+              );
+            },
+            backgroundColor: AppTheme.primary,
+            child: const Icon(
+              Icons.category,
+              color: Colors.white,
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.category_outlined),
-            selectedIcon: Icon(Icons.category),
-            label: 'Categories',
-          ),
+
+          const SizedBox(height: 12),
+
+          const SyncFab(),
         ],
+      )
+          : null,
+
+      bottomNavigationBar: Container(
+     //   margin:  EdgeInsets.only(top: 10),
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          
+          color: const Color(0xFF1E1E1E),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: SalomonBottomBar(
+          currentIndex: _currentIndex,
+
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white54,
+
+          items: [
+            SalomonBottomBarItem(
+              icon: const Icon(Icons.home_outlined),
+              activeIcon: const Icon(Icons.home),
+              title: const Text("Home"),
+              selectedColor: Colors.indigo,
+            ),
+
+            SalomonBottomBarItem(
+              icon: const Icon(Icons.sync),
+              activeIcon: const Icon(Icons.sync_rounded),
+              title: const Text("Transactions"),
+              selectedColor: Colors.green,
+            ),
+
+            SalomonBottomBarItem(
+              icon: const Icon(Icons.person),
+              activeIcon: const Icon(Icons.person_4_outlined),
+              title: const Text("Profile"),
+              selectedColor: Colors.orange,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -114,6 +164,7 @@ class _DashboardTabState extends State<_DashboardTab> {
       nickname = name;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -152,50 +203,6 @@ class _DashboardTabState extends State<_DashboardTab> {
         ),
       ),
     );
-  }
-
-  // Widget _buildHeader(BuildContext context, String nickname) {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //     children: [
-  //       Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text(
-  //             'Good ${_greeting()},',
-  //             style: TextStyle(
-  //                 color: AppTheme.textSecondary, fontSize: 14),
-  //           ),
-  //           const SizedBox(height: 2),
-  //           Text(
-  //             now,
-  //             style: const TextStyle(
-  //               color: AppTheme.textPrimary,
-  //               fontSize: 20,
-  //               fontWeight: FontWeight.w700,
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //       Container(
-  //         width: 44,
-  //         height: 44,
-  //         decoration: BoxDecoration(
-  //           color: AppTheme.primary.withOpacity(0.1),
-  //           borderRadius: BorderRadius.circular(12),
-  //         ),
-  //         child: const Icon(Icons.notifications_outlined,
-  //             color: AppTheme.primary),
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  String _greeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Morning';
-    if (hour < 17) return 'Afternoon';
-    return 'Evening';
   }
 
   Widget _buildSummaryCard(BuildContext context) {

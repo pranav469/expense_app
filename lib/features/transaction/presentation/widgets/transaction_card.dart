@@ -152,7 +152,7 @@ class TransactionCard extends StatelessWidget {
                 const SizedBox(height: 4),
 
                 Text(
-                  '${isCredit ? '+' : '-'}${CurrencyFormatter.format(txn.amount)}',
+                  '${isCredit ? '+' : '-'} ${CurrencyFormatter.format(txn.amount)}',
                   style: TextStyle(
                     color: isCredit ? AppTheme.credit : AppTheme.debit,
                     fontWeight: FontWeight.w700,

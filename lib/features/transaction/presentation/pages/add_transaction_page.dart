@@ -76,9 +76,8 @@ class _AddTransactionPageState
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Padding(
-          padding:
-          const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          padding:   const EdgeInsets.all(20),
           child: Form(
             key: formKey,
             child: Column(
@@ -376,7 +375,7 @@ class _AddTransactionPageState
                   ),
                 ),
 
-                const Spacer(),
+              //  const Spacer(),
 
                 /// SAVE BUTTON
                 SizedBox(
