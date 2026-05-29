@@ -71,6 +71,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           state.token,
         );
 
+        await prefs.setDouble(
+          'limit',
+          10000.0,
+        );
+
         await prefs.setString(
           'nickname',
           state.nickname,
@@ -126,6 +131,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await prefs.setString(
         'token',
         token,
+      );
+
+      await prefs.setDouble(
+        'limit',
+        10000.0,
       );
 
       await prefs.setString(

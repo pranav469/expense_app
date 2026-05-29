@@ -206,217 +206,228 @@ class _DashboardTabState extends State<_DashboardTab> {
   }
 
   Widget _buildSummaryCard(BuildContext context) {
-    return BlocBuilder<DashboardBloc, DashboardState>(
-      builder: (context, state) {
-        if (state is DashboardLoading || state is DashboardInitial) {
-          return const ShimmerSummaryCard();
-        }
+    return FutureBuilder<double>(
+      future: SessionService.getLimit(),
 
-        if (state is DashboardError) {
-          return Text(state.message);
-        }
+      builder: (context, snapshot) {
+        final monthlyLimit = snapshot.data ?? 0.0;
 
-        final stats = (state as DashboardLoaded).stats;
+        return BlocBuilder<DashboardBloc, DashboardState>(
+          builder: (context, state) {
+            if (state is DashboardLoading ||
+                state is DashboardInitial) {
+              return const ShimmerSummaryCard();
+            }
 
-        const monthlyLimit = 10000.0;
+            if (state is DashboardError) {
+              return Text(state.message);
+            }
 
-        final spent = stats.totalExpense;
+            final stats = (state as DashboardLoaded).stats;
 
-        final remaining = monthlyLimit - spent;
+            final spent = stats.totalExpense;
 
-        final progress = (spent / monthlyLimit).clamp(0.0, 1.0);
+            final remaining = monthlyLimit - spent;
 
-        return Column(
-          children: [
-            /// INCOME + EXPENSE
-            Row(
+            final progress =
+            monthlyLimit == 0
+                ? 0.0
+                : (spent / monthlyLimit).clamp(0.0, 1.0);
+
+            return Column(
               children: [
-                /// INCOME
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(18),
+                /// INCOME + EXPENSE
+                Row(
+                  children: [
+                    /// INCOME
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(18),
 
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF0B7A00), Color(0xFF00A000)],
-                      ),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF0B7A00), Color(0xFF00A000)],
+                          ),
 
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-
-                      children: [
-                        const Text(
-                          'Total Income',
-                          style: TextStyle(color: Colors.white, fontSize: 15),
+                          borderRadius: BorderRadius.circular(18),
                         ),
 
-                        const SizedBox(height: 18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
 
-                        Row(
                           children: [
-                            const Icon(
-                              Icons.arrow_downward,
-                              color: Colors.white,
+                            const Text(
+                              'Total Income',
+                              style: TextStyle(color: Colors.white, fontSize: 15),
                             ),
 
-                            const SizedBox(width: 8),
+                            const SizedBox(height: 18),
 
-                            Expanded(
-                              child: Text(
-                                CurrencyFormatter.format(stats.totalIncome),
-
-                                overflow: TextOverflow.ellipsis,
-
-                                style: const TextStyle(
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.arrow_downward,
                                   color: Colors.white,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
                                 ),
-                              ),
+
+                                const SizedBox(width: 8),
+
+                                Expanded(
+                                  child: Text(
+                                    CurrencyFormatter.format(stats.totalIncome),
+
+                                    overflow: TextOverflow.ellipsis,
+
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 14),
-
-                /// EXPENSE
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(18),
-
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF870000), Color(0xFFD50000)],
                       ),
-
-                      borderRadius: BorderRadius.circular(18),
                     ),
 
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(width: 14),
 
-                      children: [
-                        const Text(
-                          'Total Expense',
-                          style: TextStyle(color: Colors.white, fontSize: 15),
+                    /// EXPENSE
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(18),
+
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF870000), Color(0xFFD50000)],
+                          ),
+
+                          borderRadius: BorderRadius.circular(18),
                         ),
 
-                        const SizedBox(height: 18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
 
-                        Row(
                           children: [
-                            const Icon(Icons.arrow_upward, color: Colors.white),
+                            const Text(
+                              'Total Expense',
+                              style: TextStyle(color: Colors.white, fontSize: 15),
+                            ),
 
-                            const SizedBox(width: 8),
+                            const SizedBox(height: 18),
 
-                            Expanded(
-                              child: Text(
-                                CurrencyFormatter.format(stats.totalExpense),
+                            Row(
+                              children: [
+                                const Icon(Icons.arrow_upward, color: Colors.white),
 
-                                overflow: TextOverflow.ellipsis,
+                                const SizedBox(width: 8),
 
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
+                                Expanded(
+                                  child: Text(
+                                    CurrencyFormatter.format(stats.totalExpense),
+
+                                    overflow: TextOverflow.ellipsis,
+
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
 
-            const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-            /// MONTHLY LIMIT CARD
-            Container(
-              width: double.infinity,
+                /// MONTHLY LIMIT CARD
+                Container(
+                  width: double.infinity,
 
-              padding: const EdgeInsets.all(18),
+                  padding: const EdgeInsets.all(18),
 
-              decoration: BoxDecoration(
-                color: Colors.black26,
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
 
-                borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(18),
 
-                border: Border.all(color: Colors.white70),
-              ),
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-
-                children: [
-                  const Text(
-                    'MONTHLY LIMIT',
-                    style: TextStyle(color: Colors.white70, fontSize: 13),
+                    border: Border.all(color: Colors.white70),
                   ),
 
-                  const SizedBox(height: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
 
-                  Row(
                     children: [
-                      Text(
-                        CurrencyFormatter.format(spent),
+                      const Text(
+                        'MONTHLY LIMIT',
+                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                      ),
 
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(height: 14),
+
+                      Row(
+                        children: [
+                          Text(
+                            CurrencyFormatter.format(spent),
+
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(width: 8),
+
+                          Text(
+                            '/ ${CurrencyFormatter.format(monthlyLimit)}',
+
+                            style: const TextStyle(
+                              color: Colors.white54,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+
+                        child: LinearProgressIndicator(
+                          value: progress,
+
+                          minHeight: 8,
+
+                          backgroundColor: Colors.white24,
+
+                          valueColor: const AlwaysStoppedAnimation(Colors.green),
                         ),
                       ),
 
-                      const SizedBox(width: 8),
+                      const SizedBox(height: 14),
 
                       Text(
-                        '/ ${CurrencyFormatter.format(monthlyLimit)}',
+                        '${((remaining / monthlyLimit) * 100).clamp(0, 100).toInt()}% Remaining',
 
-                        style: const TextStyle(
-                          color: Colors.white54,
-                          fontSize: 18,
-                        ),
+                        style: const TextStyle(color: Colors.white70, fontSize: 14),
                       ),
                     ],
                   ),
+                ),
+              ],
+            );
 
-                  const SizedBox(height: 20),
-
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-
-                    child: LinearProgressIndicator(
-                      value: progress,
-
-                      minHeight: 8,
-
-                      backgroundColor: Colors.white24,
-
-                      valueColor: const AlwaysStoppedAnimation(Colors.green),
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  Text(
-                    '${((remaining / monthlyLimit) * 100).clamp(0, 100).toInt()}% Remaining',
-
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          },
         );
       },
     );

@@ -7,6 +7,24 @@ class SessionService {
     return prefs.getString('nickname') ?? '';
   }
 
+  static Future<void> setNickname(String nickname) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('nickname', nickname);
+  }
+
+  static Future<void> setLimit(double limit) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setDouble('limit', limit);
+  }
+
+  static Future<double> getLimit() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    return prefs.getDouble('limit') ?? 0.0;
+  }
+
   static Future<String> getPhone() async {
     final prefs = await SharedPreferences.getInstance();
 

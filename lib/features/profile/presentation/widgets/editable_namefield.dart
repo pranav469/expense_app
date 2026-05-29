@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/session_service.dart';
+
 class EditableNameField extends StatefulWidget {
   final String nickName;
 
@@ -35,15 +37,20 @@ class _EditableNameFieldState extends State<EditableNameField> {
     super.dispose();
   }
 
-  void toggleEdit() {
+  void toggleEdit() async {
+    if (isEditing) {
+      final nickname = controller.text.trim();
+
+      if (nickname.isEmpty) return;
+
+      await SessionService.setNickname(nickname);
+
+      FocusScope.of(context).unfocus();
+    }
+
     setState(() {
       isEditing = !isEditing;
     });
-
-    // Optional: close keyboard when saved
-    if (!isEditing) {
-      FocusScope.of(context).unfocus();
-    }
   }
 
   @override

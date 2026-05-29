@@ -1,96 +1,28 @@
-import 'package:expense_manager/core/themes/app_text_styles.dart';
-import 'package:expense_manager/features/profile/presentation/widgets/category_section.dart';
-import 'package:expense_manager/features/profile/presentation/widgets/set_limit_field.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/themes/app_theme.dart';
-import '../../../../core/utils/session_service.dart';
-import '../../../transaction/presentation/bloc/category_bloc.dart';
-import '../../../transaction/presentation/bloc/category_event.dart';
-import '../../../transaction/presentation/bloc/category_state.dart';
-import '../../../transaction/presentation/bloc/sync_bloc.dart';
-import '../../../transaction/presentation/bloc/sync_event.dart';
-import '../widgets/editable_namefield.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/themes/app_text_styles.dart';
+import '../../../transaction/presentation/bloc/category_bloc.dart';
+import '../../../transaction/presentation/bloc/category_state.dart';
+import '../../../transaction/presentation/bloc/category_event.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class CategorySection extends StatefulWidget {
+  const CategorySection({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<CategorySection> createState() => _CategorySectionState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _CategorySectionState extends State<CategorySection> {
+  final TextEditingController categoryController = TextEditingController();
+
   @override
-  void initState() {
-    super.initState();
-    loadUser();
-    context.read<CategoryBloc>().add(const LoadCategories());
-  }
-
-  final formKey = GlobalKey<FormState>();
-
-  String nickname = "";
-
-  Future<void> loadUser() async {
-    final name = await SessionService.getNickname();
-
-    setState(() {
-      nickname = name;
-    });
-  }
-
-  void _startSync() {
-    context.read<SyncBloc>().add(const TriggerSync());
+  void dispose() {
+    super.dispose();
+    categoryController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 40, horizontal: 15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Profile & Settings',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.surface,
-                ),
-              ),
-              SizedBox(height: 20),
-              Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text('NICKNAME', style: AppTextStyles.profileText),
-                    SizedBox(height: 15),
-                    EditableNameField(nickName: nickname),
-                    SizedBox(height: 15),
-                    SetLimitField(),
-                    SizedBox(height: 15),
-                   CategorySection(),
-                   // categoryList(context),
-                    SizedBox(height: 15),
-                    cloudSyncSection(),
-                    SizedBox(height: 15),
-                    logout(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget categoryList(BuildContext context) {
     return BlocBuilder<CategoryBloc, CategoryState>(
       builder: (context, state) {
         if (state is CategoryLoading) {
@@ -144,6 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               alignment: Alignment.centerLeft,
 
                               child: TextField(
+                                controller: categoryController,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -171,7 +104,9 @@ class _ProfilePageState extends State<ProfilePage> {
                             child: ElevatedButton(
                               onPressed: () {
                                 context.read<CategoryBloc>().add(
-                                  AddCategoryEvent(''),
+                                  AddCategoryEvent(
+                                    categoryController.text.trim(),
+                                  ),
                                 );
                               },
 
@@ -259,89 +194,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
         return const SizedBox();
       },
-    );
-  }
-
-  Widget cloudSyncSection() {
-    return GestureDetector(
-      onTap: () {
-        _startSync();
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('CLOUD SYNC', style: AppTextStyles.profileText),
-          SizedBox(height: 15),
-          Container(
-            padding: const EdgeInsets.all(18),
-
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: Colors.white10),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.blueAccent,
-                borderRadius: BorderRadius.circular(22),
-              ),
-              padding: EdgeInsets.only(
-                top: 10,
-                bottom: 10,
-                left: 20,
-                right: 20,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('SYNC TO CLOUD', style: AppTextStyles.profileText),
-                      SizedBox(height: 5),
-                      Text(
-                        'Sync and update to backend',
-                        style: AppTextStyles.profileSubText,
-                      ),
-                    ],
-                  ),
-                  Image.asset('assets/images/profile/cloud.png'),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget logout() {
-    return GestureDetector(
-      onTap: () {
-        SessionService.logout();
-      },
-      child: Container(
-        padding: const EdgeInsets.all(18),
-
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: Colors.white10),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Log Out',
-              style: AppTextStyles.onboardingDescription.copyWith(
-                color: Colors.red,
-              ),
-            ),
-            SizedBox(width: 10),
-            Icon(Icons.logout, color: Colors.red, size: 18),
-          ],
-        ),
-      ),
     );
   }
 }
