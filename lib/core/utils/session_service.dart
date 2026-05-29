@@ -1,3 +1,6 @@
+import 'package:expense_manager/features/auth/presentation/pages/login_page.dart';
+import 'package:expense_manager/main.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionService {
@@ -39,7 +42,9 @@ class SessionService {
 
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-
     await prefs.clear();
+    navigatorKey.currentState?.pushReplacement(
+      MaterialPageRoute(builder: (_) => LoginPage()),
+    );
   }
 }
