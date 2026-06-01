@@ -18,8 +18,6 @@ class AuthRemoteDatasource {
         },
       );
 
-      print('RESULT IS $response');
-
       return AuthResponseModel.fromJson(
         response.data,
       );

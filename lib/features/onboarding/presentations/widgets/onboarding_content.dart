@@ -25,7 +25,6 @@ class OnboardingContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        /// Background Image
         Positioned.fill(
           child: Image.asset(
             image,
@@ -33,14 +32,12 @@ class OnboardingContent extends StatelessWidget {
           ),
         ),
 
-        /// Dark Overlay
         Positioned.fill(
           child: Container(
             color: Colors.black.withOpacity(0.45),
           ),
         ),
 
-        /// Skip Button
         Positioned(
           top: 60,
           right: 24,
@@ -57,7 +54,6 @@ class OnboardingContent extends StatelessWidget {
           ),
         ),
 
-        /// Bottom Content
         Positioned(
           left: 24,
           right: 24,

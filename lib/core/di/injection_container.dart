@@ -1,9 +1,7 @@
 // core/di/injection_container.dart
 import 'package:get_it/get_it.dart';
 
-import '../../features/category/data/datasource/category_local_datasource.dart';
-import '../../features/category/data/repository/category_repository_impl.dart';
-import '../../features/category/domain/repository/category_repository.dart' hide CategoryRepository;
+
 import '../../features/transaction/data/datasources/transaction_local_datasource.dart';
 import '../../features/transaction/domain/repositories/transaction_repository.dart';
 import '../../features/transaction/domain/usecases/sync_usecase.dart';
@@ -26,7 +24,7 @@ Future<void> init() async {
   // Datasources
   sl.registerLazySingleton(() => TransactionLocalDatasource(sl()));
   //sl.registerLazySingleton(() => TransactionRemoteDatasource(sl()));
-  sl.registerLazySingleton(() => CategoryLocalDatasource());
+ // sl.registerLazySingleton(() => CategoryLocalDatasource());
  // sl.registerLazySingleton(() => CategoryRemoteDatasource(sl()));
 
   // Repositories

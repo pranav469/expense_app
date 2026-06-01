@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class AuthTextfield extends StatelessWidget {
+class AuthTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
   final String? Function(String?)?
   validator;
 
-  const AuthTextfield({
+  const AuthTextField({
     super.key,
     required this.controller,
     this.hintText = "Enter phone number",

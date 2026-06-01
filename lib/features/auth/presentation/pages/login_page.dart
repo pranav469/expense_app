@@ -50,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
         child: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state.otp.isNotEmpty) {
-              navigatorKey.currentState?.push(
+              navigatorKey.currentState?.pushReplacement(
                 MaterialPageRoute(builder: (_) => OtpPage(mobileNo: state.phone)),
               );
             }
@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 40),
 
-                  AuthTextfield(
+                  AuthTextField(
                     controller: phoneController,
                     hintText: 'Phone',
                     validator: Validators.validatePhone,

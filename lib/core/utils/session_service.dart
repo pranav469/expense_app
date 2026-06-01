@@ -43,8 +43,10 @@ class SessionService {
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    navigatorKey.currentState?.pushReplacement(
-      MaterialPageRoute(builder: (_) => LoginPage()),
+
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+          (route) => false,
     );
   }
 }

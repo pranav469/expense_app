@@ -1,10 +1,11 @@
 import 'package:sqflite/sqflite.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/tables.dart';
-import '../../../category/data/models/category_model.dart';
 import '../../domain/entities/category_entity.dart';
 import '../../domain/repositories/category_repository.dart';
 import 'package:dio/dio.dart';
+
+import '../model/category_model.dart';
 
 class CategoryRepositoryImpl implements CategoryRepository {
   final Dio _dio; // inject this

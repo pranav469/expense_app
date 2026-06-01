@@ -6,7 +6,6 @@ import '../../../../core/themes/app_theme.dart';
 import '../../../../core/utils/session_service.dart';
 import '../../../transaction/presentation/bloc/category_bloc.dart';
 import '../../../transaction/presentation/bloc/category_event.dart';
-import '../../../transaction/presentation/bloc/category_state.dart';
 import '../../../transaction/presentation/bloc/sync_bloc.dart';
 import '../../../transaction/presentation/bloc/sync_event.dart';
 import '../widgets/editable_namefield.dart';

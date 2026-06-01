@@ -1,7 +1,5 @@
 import 'package:expense_manager/core/network/dio_client.dart';
-import 'package:expense_manager/features/category/data/datasource/category_local_datasource.dart';
 import 'package:expense_manager/features/transaction/data/repositories/transaction_repository_impl.dart';
-import 'package:expense_manager/features/transaction/domain/repositories/dashboard_repository.dart';
 import 'package:expense_manager/features/transaction/domain/usecases/category_usecase.dart';
 import 'package:expense_manager/features/transaction/presentation/bloc/category_bloc.dart';
 import 'package:flutter/material.dart';
@@ -14,10 +12,8 @@ import 'features/auth/domain/usecases/send_otp_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/transaction/data/repositories/category_repository_impl.dart';
-import 'features/category/domain/repository/category_repository.dart';
 import 'features/onboarding/presentations/pages/onboarding_page.dart';
 import 'features/transaction/data/repositories/dashboard_repository_impl.dart';
-import 'features/transaction/domain/repositories/transaction_repository.dart';
 import 'features/transaction/domain/usecases/get_dashboard_stats.dart';
 import 'features/transaction/domain/usecases/sync_usecase.dart';
 import 'features/transaction/domain/usecases/transaction_usecase.dart';
