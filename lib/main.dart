@@ -1,4 +1,5 @@
 import 'package:expense_manager/core/network/dio_client.dart';
+import 'package:expense_manager/core/services/auth_wrapper.dart';
 import 'package:expense_manager/features/transaction/data/repositories/transaction_repository_impl.dart';
 import 'package:expense_manager/features/transaction/domain/usecases/category_usecase.dart';
 import 'package:expense_manager/features/transaction/presentation/bloc/category_bloc.dart';
@@ -95,9 +96,10 @@ class MyApp extends StatelessWidget {
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         routes: {
-          '/': (context) => const OnboardingPage(),
+          //'/': (context) => const OnboardingPage(),
           '/login': (context) => LoginPage(),
         },
+        home: AuthWrapper(),
       ),
     );
   }
